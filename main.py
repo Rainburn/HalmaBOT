@@ -23,3 +23,5 @@ while True :
         break
 
 game = Game(size_input, time_limit_input, bot_count)
+
+# TO DO ---> CONTINUE THE GAME's EXECUTION CHRONOLOGICALLY

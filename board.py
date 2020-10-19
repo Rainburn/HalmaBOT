@@ -1,4 +1,4 @@
-from pawn import Pawn, Empty
+from pawn import Pile, Pawn, Empty
 
 class Board :
 
@@ -9,26 +9,233 @@ class Board :
         for i in range(size):
             for j in range(size):
                 if (i + j <= 3):
-                    self.game_board[i].append(Pawn("RED"))
+                    self.game_board[i].append(Pawn(i, j, "RED"))
 
                 elif (2 * size - (i + j) <= 5):
-                    self.game_board[i].append(Pawn("GREEN"))
+                    self.game_board[i].append(Pawn(i, j, "GREEN"))
                 
                 else :
-                    self.game_board[i].append(Empty())
+                    self.game_board[i].append(Empty(i, j))
 
     
-    def swapPosition(self, col_initial, row_initial, col_final, row_final):
-        temp = self.game_board[row_final][col_final]
-        self.game_board[row_final][col_final] = self.game_board[row_initial][col_initial]
-        self.game_board[row_initial][col_initial] = temp
+    def swapPosition(self, col_initial, row_initial, row_final, col_final):
+        pileInitial = self.game_board[row_initial][col_initial]
+        pileFinal = self.game_board[row_final][col_final]
+
+        pileInitial.setRow(row_final)
+        pileInitial.setCol(col_final)
+        
+        pileFinal.setRow(row_initial)
+        pileFinal.setCol(col_initial)
+
+        self.game_board[row_final][col_final] = pileInitial
+        self.game_board[row_initial][col_initial] = pileFinal
+
+    def canMoveEast(self, row_initial, col_initial, multiplier = 1) :
+        row_shift = 0 * multiplier
+        col_shift = 1 * multiplier 
+
+        row_final = row_initial + row_shift
+        col_final = col_initial + col_shift
+        if (row_final >= self.size) or (col_final >= self.size) :
+            return False
+        
+        pile = self.getPile(row_final, col_final)
+
+        if (str(pile) == "x") :
+            return True
+        
+        else :
+            return False
+
+    def canMoveSouthEast(self, row_initial, col_initial, multiplier = 1) :
+        row_shift = 1 * multiplier
+        col_shift = 1 * multiplier 
+
+        row_final = row_initial + row_shift
+        col_final = col_initial + col_shift
+        if (row_final >= self.size) or (col_final >= self.size) :
+            return False
+        
+        pile = self.getPile(row_final, col_final)
+
+        if (str(pile) == "x") :
+            return True
+        
+        else :
+            return False
+
+    def canMoveSouth(self, row_initial, col_initial, multiplier = 1) :
+        row_shift = 1 * multiplier
+        col_shift = 0 * multiplier 
+
+        row_final = row_initial + row_shift
+        col_final = col_initial + col_shift
+        if (row_final >= self.size) or (col_final >= self.size) :
+            return False
+        
+        pile = self.getPile(row_final, col_final)
+
+        if (str(pile) == "x") :
+            return True
+        
+        else :
+            return False
+    
+    def canMoveSouthWest(self, row_initial, col_initial, multiplier = 1) :
+        row_shift = 1 * multiplier
+        col_shift = -1 * multiplier 
+
+        row_final = row_initial + row_shift
+        col_final = col_initial + col_shift
+        if (row_final >= self.size) or (col_final >= self.size) :
+            return False
+        
+        pile = self.getPile(row_final, col_final)
+
+        if (str(pile) == "x") :
+            return True
+        
+        else :
+            return False
+
+    def canMoveWest(self, row_initial, col_initial, multiplier = 1) :
+        row_shift = 0 * multiplier
+        col_shift = -1 * multiplier 
+
+        row_final = row_initial + row_shift
+        col_final = col_initial + col_shift
+        if (row_final >= self.size) or (col_final >= self.size) :
+            return False
+        
+        pile = self.getPile(row_final, col_final)
+
+        if (str(pile) == "x") :
+            return True
+        
+        else :
+            return False
+    
+    def canMoveNorthWest(self, row_initial, col_initial, multiplier = 1) :
+        row_shift = -1 * multiplier
+        col_shift = -1 * multiplier 
+
+        row_final = row_initial + row_shift
+        col_final = col_initial + col_shift
+        if (row_final >= self.size) or (col_final >= self.size) :
+            return False
+        
+        pile = self.getPile(row_final, col_final)
+
+        if (str(pile) == "x") :
+            return True
+        
+        else :
+            return False
+
+    def canMoveNorth(self, row_initial, col_initial, multiplier = 1) :
+        row_shift = -1 * multiplier
+        col_shift = 0 * multiplier 
+
+        row_final = row_initial + row_shift
+        col_final = col_initial + col_shift
+        if (row_final >= self.size) or (col_final >= self.size) :
+            return False
+        
+        pile = self.getPile(row_final, col_final)
+
+        if (str(pile) == "x") :
+            return True
+        
+        else :
+            return False
+
+    def canMoveNorthEast(self, row_initial, col_initial, multiplier = 1) :
+        row_shift = -1 * multiplier
+        col_shift = 1 * multiplier 
+
+        row_final = row_initial + row_shift
+        col_final = col_initial + col_shift
+        if (row_final >= self.size) or (col_final >= self.size) :
+            return False
+        
+        pile = self.getPile(row_final, col_final)
+
+        if (str(pile) == "x") :
+            return True
+        
+        else :
+            return False
+    
+
+    def takeEastPile(self, row_initial, col_initial, multiplier = 1) :
+        row_shift = 0 * multiplier
+        col_shift = 1 * multiplier 
+
+        row_final = row_initial + row_shift
+        col_final = col_initial + col_shift
+        return self.getPile(row_final, col_final)
+
+    def takeSouthEastPile(self, row_initial, col_initial, multiplier = 1) :
+        row_shift = 1 * multiplier
+        col_shift = 1 * multiplier 
+
+        row_final = row_initial + row_shift
+        col_final = col_initial + col_shift
+        return self.getPile(row_final, col_final)
+
+    def takeSouthPile(self, row_initial, col_initial, multiplier = 1) :
+        row_shift = 1 * multiplier
+        col_shift = 0 * multiplier 
+
+        row_final = row_initial + row_shift
+        col_final = col_initial + col_shift
+        return self.getPile(row_final, col_final)
+    
+    def takeSouthWestPile(self, row_initial, col_initial, multiplier = 1) :
+        row_shift = 1 * multiplier
+        col_shift = -1 * multiplier 
+
+        row_final = row_initial + row_shift
+        col_final = col_initial + col_shift
+        return self.getPile(row_final, col_final)
+
+    def takeWestPile(self, row_initial, col_initial, multiplier = 1) :
+        row_shift = 0 * multiplier
+        col_shift = -1 * multiplier 
+
+        row_final = row_initial + row_shift
+        col_final = col_initial + col_shift
+        return self.getPile(row_final, col_final)
+    
+    def takeNorthWestPile(self, row_initial, col_initial, multiplier = 1) :
+        row_shift = -1 * multiplier
+        col_shift = -1 * multiplier 
+
+        row_final = row_initial + row_shift
+        col_final = col_initial + col_shift
+        return self.getPile(row_final, col_final)
+
+    def takeNorthPile(self, row_initial, col_initial, multiplier = 1) :
+        row_shift = -1 * multiplier
+        col_shift = 0 * multiplier 
+
+        row_final = row_initial + row_shift
+        col_final = col_initial + col_shift
+        return self.getPile(row_final, col_final)
+
+    def takeNorthEastPile(self, row_initial, col_initial, multiplier = 1) :
+        row_shift = -1 * multiplier
+        col_shift = 1 * multiplier 
+
+        row_final = row_initial + row_shift
+        col_final = col_initial + col_shift
+        return self.getPile(row_final, col_final)
 
 
     def getPile(self, row, col):
         return self.game_board[row][col]
         
-
-
 
     def printBoard(self):
 
