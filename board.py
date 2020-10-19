@@ -45,6 +45,6 @@ class Board :
 
 
     def getSize(self):
-        print(self.boardSize)
+        return self.size
 
 

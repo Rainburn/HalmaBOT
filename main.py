@@ -15,12 +15,11 @@ while True :
 
 time_limit_input = int(input("Time Limit Input (in Second) : "))
 
+print()
+
 while True :
-    player_color = str(input("Choose Color : R (Red) / G (Green) : "))
-
-    if ((player_color == "R") or (player_color == "G") or (player_color == "r") or (player_color == "g")) :
+    bot_count = int(input("Total Bot (1 / 2) : "))
+    if (bot_count == 1) or (bot_count == 2) :
         break
-    print("Please choose the color correctly")
 
-
-game = Game(size_input, time_limit_input, player_color)
+game = Game(size_input, time_limit_input, bot_count)
