@@ -29,6 +29,13 @@ class Game :
 
             self.players.append(Player(player_color))
 
+            if (player_color == "R") :
+                another_color = "G"
+            else :
+                another_color = "R"
+
+            self.players.append(Player(player_color))
+            self.players.append(Bot(another_color, self.board))
             # After this, append BOT to self.players with the remaining unchosen color
 
             if (player_color == "R") :
