@@ -243,7 +243,8 @@ class Board :
 
         for i in range(self.size + 1):
             for j in range(self.size + 1):
-                
+
+
                 if (i == 0) and (j == 0) :
                     print("x", end="  ")
                 
