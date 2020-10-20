@@ -6,7 +6,7 @@ class Bot(Player):
 
 
     def __init__(self, color, board):
-        super.__init__(color)
+        super().__init__(color)
         self.board = board
 
     def __str__(self):
@@ -106,8 +106,8 @@ class Bot(Player):
                 best_move = selected_move
                 b = min(b, val)
 
-            if (b <= a):
-                return best_val, best_move
+            #if (b <= a):
+            #    return best_val, best_move
 
         return best_val, best_move
 

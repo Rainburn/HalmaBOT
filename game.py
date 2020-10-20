@@ -1,6 +1,7 @@
 from board import Board
 from player import Player
 from pawn import Pile, Pawn, Empty
+from bot import Bot
 import time, datetime
 
 class Game :
@@ -34,6 +35,14 @@ class Game :
             self.players.append(Bot(another_color))
             # After this, append BOT to self.players with the remaining unchosen color
 
+            if (player_color == "R") :
+                another_color = "G"
+            else :
+                another_color = "R"
+            
+            self.players.append(Bot(another_color, self.board))
+
+
         # For Testing Only
 
         elif (bot_count == 0) :
@@ -61,7 +70,10 @@ class Game :
 
         else : # TO DO ---> Bot Count = 2 (ALL PLAYERS ARE BOT)
             # Append BOTS to self.players
-            print("Append BOTS HERE")
+
+            self.players.append(Bot("R", self.board))
+            self.players.append(Bot("G", self.board))
+
 
     def play(self) :
 
@@ -151,6 +163,19 @@ class Game :
 
             else : # TO DO ---> BOT's TURN
                 # TO DO --> Turn On Timer Here
+
+                in_play.updateBoard(self.board)
+                color = in_play.getColor()
+                value, move = in_play.minimax(0, color)
+                print(move)
+
+                initial_row = move[0].getRow()
+                initial_col = move[0].getCol()
+
+                target_row = move[1].getRow()
+                target_col = move[1].getCol()
+
+                self.board.swapPosition(initial_row, initial_col, target_row, target_col)
 
                 # do turn as bot's desires
                 self.nextTurn()
