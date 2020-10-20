@@ -1,4 +1,3 @@
-from game import Game
 from board import Board
 from player import *
 from pawn import *
@@ -6,7 +5,7 @@ from pawn import *
 class Bot(Player):
 
 
-    def __init__(self, color, board = game.board):
+    def __init__(self, color, board):
         super.__init__(color)
         self.board = board
 
@@ -199,5 +198,5 @@ class Bot(Player):
 
         return moves 
         
-    def updateBoard(self, board = game.board):
+    def updateBoard(self, board):
         self.board = board
