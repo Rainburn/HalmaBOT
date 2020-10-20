@@ -1,6 +1,7 @@
 from board import Board
 from player import Player
 from pawn import Pile, Pawn, Empty
+import time, datetime
 
 class Game :
     
@@ -45,6 +46,8 @@ class Game :
             # if player is HUMAN
             if (str(in_play) == "HUMAN") :
                 # Turn on Timer
+
+
                 pawn_row = -1
                 pawn_col = -1
                 while True : # Picking Pawn until Valid Pawn Selected
@@ -90,6 +93,9 @@ class Game :
 
 
             else : # TO DO ---> BOT's TURN
+                # TO DO --> Turn On Timer Here
+
+
                 # do turn as bot's desires
                 self.nextTurn()
                 
