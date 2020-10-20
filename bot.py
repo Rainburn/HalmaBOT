@@ -1,21 +1,24 @@
-from game import Game
 from board import Board
+from player import *
 from pawn import *
 
-class Bot:
+class Bot(Player):
 
 
     def __init__(self, color, board):
-        self.color = color
+        super().__init__(color)
         self.board = board
 
-    def checkwin(self, color, state=self.board):
+    def __str__(self):
+        return "BOT"
+
+    def checkwin(self, color):
         win = True
         if (color == "R"):
             for i in range(4) :
                 for j in range(4 - i) :
-                    row = state.getSize() - (i + 1)
-                    col = state.getSize() - (j + 1)
+                    row = self.board.getSize() - (i + 1)
+                    col = self.board.getSize() - (j + 1)
 
                     pile = self.board.getPile(row, col)
                     if (str(pile) == "x") or (str(pile) == "G") :
@@ -23,16 +26,16 @@ class Bot:
         elif (color == "G"):
             for i in range(4) :
                 for j in range(4 - i) :
-                    pile = state.getPile(i, j)
+                    pile = self.board.getPile(i, j)
                     if (str(pile) == "x") or (str(pile) == "R") :
                         win = False
         return win
 
 
-    def objFunc(self, color, board=self.board):
+    def objFunc(self, color):
         valueR = 0
         valueG = 0
-        n = board.getSize()
+        n = self.board.getSize()
         now = Pawn.Empty()
         opponent = ""
 
@@ -41,8 +44,8 @@ class Bot:
         elif (color == "G"):
             opponent = "R"
 
-        win = self.checkwin(color, board)
-        lose = self.checkwin(opponent, board)
+        win = self.checkwin(color, self.board)
+        lose = self.checkwin(opponent, self.board)
 
         if win:
             value = 99999
@@ -51,7 +54,7 @@ class Bot:
         else:
             for i in range(n):
                 for j in range (n):
-                    now = board.getPile(i, j)
+                    now = self.board.getPile(i, j)
                     if Pawn.str(now) == "R":
                         valueR += i + j
                     elif Pawn.str(now) == "G":
@@ -66,9 +69,9 @@ class Bot:
 
         return value
 
-    def minimax(self, depth, color, max = True, state=self.board):
+    def minimax(self, depth, color, max = True, a = float("-inf"), b = float("inf")):
         #variabel dan move
-        moves = nextmove(color, state) #nextmove blom ada
+        moves = self.nextMove(color)
         best_move = None
         if max:
             best_val = float("-inf")
@@ -76,30 +79,35 @@ class Bot:
             best_val = float("inf")
 
         #basis
-        if (depth == 3) or (self.checkwin("R", state)) or (self.checkwin("G", state)):
-            return self.objFunc(color, state)
+        if (depth == 3) or (self.checkwin("R")) or (self.checkwin("G")):
+            return self.objFunc(color, self.board), best_move
 
         #rekurens
         for i in range(len(moves)):
-            #move: pindahin pion (ga yakin cara kerjanya gimana)
-            initial_row = moves[i][0]
-            initial_col = moves[i][1]   
-            final_row = move.row
-            final_col = move.col
-            state.swapPosition(initial_row, initial_col, final_row, final_col)
+            #move: pindahin pion 
+            initial_row = moves[i][0].getRow()
+            initial_col = moves[i][0].getCol()   
+            final_row = moves[i][1].getRow()
+            final_col = moves[i][1].getCol()
+            self.board.swapPosition(initial_row, initial_col, final_row, final_col)
 
             #panggil rekursif
-            val, selected_move = self.minimax(depth+1, color, not max)
+            val, selected_move = self.minimax(depth+1, color, not max, a, b)
                 
-            #undo movenya (ga yakin cara kerjanya)
-            state.swapPosition(final_row, final_col, initial_row, initial_col)
+            #undo movenya
+            self.board.swapPosition(final_row, final_col, initial_row, initial_col)
 
-        if max and (val > best_val):
-            best_val = val
-            best_move = selected_move
-        if not max and (val V best_val):
-            best_val = val
-            best_move = selected_move
+            if max and (val > best_val):
+                best_val = val
+                best_move = selected_move
+                a = max(a, val)
+            if not max and (val < best_val):
+                best_val = val
+                best_move = selected_move
+                b = min(b, val)
+
+            if (b <= a):
+                return best_val, best_move
 
         return best_val, best_move
 
@@ -114,190 +122,81 @@ class Bot:
         #     moves = self.get_next_moves((Tile.P_RED
         #             if isMaxingColor == Tile.P_GREEN else Tile.P_GREEN))
 
-    def nextMove(self, color, board=self.board):
+    def nextMove(self, color):
         moves = []
-        for row in range(board.getSize()):
-            for col in range(board.getSize()):
+        for row in range(self.board.getSize()):
+            for col in range(self.board.getSize()):
 
-                currPile = board.getPile(row, col)
+                currPile = self.board.getPile(row, col)
 
                 if currPile != color:
                     continue
-
-                move[0] = currPile #From Pile
-                move[1] = ge
+                
+                move = []
+                move[0] = currPile # From Pile
+                move[1] = self.availablePos(currPile, color) # Destination Pile
 
                 moves.append(move)
-
-    def availablePos(self, selected_pawn, row_init, col_init, row_fin, col_fin) :
         
-        if (not(self.checkValidMoveByInBox(row_fin, col_fin))) :
-            return False
+        return moves
 
-        if (not(self.checkValidMoveByField(selected_pawn, row_fin, col_fin))) :
-            return False
+    def availablePos(self, selected_pawn, color, moves=None, adj=True) :
 
-        if (not(self.checkValidMoveByEmpty(row_fin, col_fin))) :
-            return False
+        row_init = selected_pawn.getRow()
+        col_init = selected_pawn.getCol()
+
+        if moves is None:
+            moves = []
+        
+        validPile = ["FF", "RF", "GF"]
+        if selected_pawn.getCol != color:
+            validPile.remove(selected_pawn.getCurrField)
+        if selected_pawn.getCurrField != "FF" and selected_pawn.getCol != color:
+            validPile.remove("FF")  # Moving out of the enemy's goal
 
         
-        # 1st Type Move, to adjacent tile
 
-        if (abs(row_init - row_fin) <= 1) and (abs(col_init - col_fin) <= 1) :
-            return True
+        for rowDelta in range(-1,2):
+            for colDelta in range(-1,2):
 
-        # Diagonal Moves
+                newRow = row_init + rowDelta
+                newCol = col_init + colDelta
 
-        else : 
-            queuePileToExpand = []
-            queuePileToExpand.append(selected_pawn)
-            possibleMove = []
-            # Append all possible moves to possibleMove
-            while (queuePileToExpand) :
-                expanding_pile = queuePileToExpand.pop(0)
-                # Checking All Possibilities
-                expanding_pile_row = expanding_pile.getRow()
-                expanding_pile_col = expanding_pile.getCol()
+                if ((newRow == row_init and newCol == col_init) or
+                    newRow < 0 or newCol < 0 or
+                    newRow >= self.b_size or newCol >= self.b_size):
+                    continue
 
-                # Iterate clockwise from East to North East
+                # Handle moves out of/in to goals
+                newPile = self.board[newRow][newCol]
+                if newPile.tile not in validPile:
+                    continue
 
-                # East
-                if (self.board.canMoveEast(expanding_pile_row, expanding_pile_col, 2)) and (not(self.board.canMoveEast(expanding_pile_row, expanding_pile_col))) : # Skipping a Pawn
-                    empty_pile = self.board.takeEastPile(expanding_pile_row, expanding_pile_col, 2)
-                    
-                    already_exist = False
-                    for pile in possibleMove :
-                        if (pile.getRow() == empty_pile.getRow()) and (pile.getCol() == empty_pile.getCol()) :
-                            already_exist = True
+                if newPile.getCurrField == "FF":
+                    if adj:  # Don't consider adjacent on subsequent calls
+                        moves.append(newPile)
+                    continue
 
-                    if (not(already_exist)) :
-                        queuePileToExpand.append(empty_pile)
-                        possibleMove.append(empty_pile)
+                # Check jump tiles
 
-                # South East
-                if (self.board.canMoveSouthEast(expanding_pile_row, expanding_pile_col, 2)) and (not(self.board.canMoveSouthEast(expanding_pile_row, expanding_pile_col))) : # Skipping a Pawn
-                    empty_pile = self.board.takeSouthEastPile(expanding_pile_row, expanding_pile_col, 2)
+                newRow = newRow + rowDelta
+                newCol = newCol + colDelta
 
-                    already_exist = False
-                    for pile in possibleMove :
-                        if (pile.getRow() == empty_pile.getRow()) and (pile.getCol() == empty_pile.getCol()) :
-                            already_exist = True
+                # Skip checking degenerate values
+                if (newRow < 0 or newCol < 0 or
+                    newRow >= self.b_size or newCol >= self.b_size):
+                    continue
 
-                    if (not(already_exist)) :
-                        queuePileToExpand.append(empty_pile)
-                        possibleMove.append(empty_pile)
+                # Handle returning moves and moves out of/in to goals
+                newPile = self.board[newRow][newCol]
+                if newPile in moves or (newPile.getCurrField not in validPile):
+                    continue
 
-                # South
-                if (self.board.canMoveSouth(expanding_pile_row, expanding_pile_col, 2)) and (not(self.board.canMoveSouth(expanding_pile_row, expanding_pile_col))) : # Skipping a Pawn
-                    empty_pile = self.board.takeSouthPile(expanding_pile_row, expanding_pile_col, 2)
-                    
-                    already_exist = False
-                    for pile in possibleMove :
-                        if (pile.getRow() == empty_pile.getRow()) and (pile.getCol() == empty_pile.getCol()) :
-                            already_exist = True
+                if newPile.getCurrField == "FF":
+                    moves.insert(0, newPile)  # Prioritize jumps
+                    self.availablePos(newPile, color, moves, False)
 
-                    if (not(already_exist)) :
-                        queuePileToExpand.append(empty_pile)
-                        possibleMove.append(empty_pile)
-
-                # South West
-                if (self.board.canMoveSouthWest(expanding_pile_row, expanding_pile_col, 2)) and (not(self.board.canMoveSouthWest(expanding_pile_row, expanding_pile_col))) : # Skipping a Pawn
-                    empty_pile = self.board.takeSouthWestPile(expanding_pile_row, expanding_pile_col, 2)
-                    
-                    already_exist = False
-                    for pile in possibleMove :
-                        if (pile.getRow() == empty_pile.getRow()) and (pile.getCol() == empty_pile.getCol()) :
-                            already_exist = True
-
-                    if (not(already_exist)) :
-                        queuePileToExpand.append(empty_pile)
-                        possibleMove.append(empty_pile)
-
-                # West
-                if (self.board.canMoveWest(expanding_pile_row, expanding_pile_col, 2)) and (not(self.board.canMoveWest(expanding_pile_row, expanding_pile_col))) : # Skipping a Pawn
-                    empty_pile = self.board.takeWestPile(expanding_pile_row, expanding_pile_col, 2)
-                    
-                    already_exist = False
-                    for pile in possibleMove :
-                        if (pile.getRow() == empty_pile.getRow()) and (pile.getCol() == empty_pile.getCol()) :
-                            already_exist = True
-
-                    if (not(already_exist)) :
-                        queuePileToExpand.append(empty_pile)
-                        possibleMove.append(empty_pile)
-
-                # North West
-                if (self.board.canMoveNorthWest(expanding_pile_row, expanding_pile_col, 2)) and (not(self.board.canMoveNorthWest(expanding_pile_row, expanding_pile_col))) : # Skipping a Pawn
-                    empty_pile = self.board.takeNorthWestPile(expanding_pile_row, expanding_pile_col, 2)
-                    
-                    already_exist = False
-                    for pile in possibleMove :
-                        if (pile.getRow() == empty_pile.getRow()) and (pile.getCol() == empty_pile.getCol()) :
-                            already_exist = True
-
-                    if (not(already_exist)) :
-                        queuePileToExpand.append(empty_pile)
-                        possibleMove.append(empty_pile)
-
-                # North
-                if (self.board.canMoveNorth(expanding_pile_row, expanding_pile_col, 2)) and (not(self.board.canMoveNorth(expanding_pile_row, expanding_pile_col))) : # Skipping a Pawn
-                    empty_pile = self.board.takeNorthPile(expanding_pile_row, expanding_pile_col, 2)
-                    
-                    already_exist = False
-                    for pile in possibleMove :
-                        if (pile.getRow() == empty_pile.getRow()) and (pile.getCol() == empty_pile.getCol()) :
-                            already_exist = True
-
-                    if (not(already_exist)) :
-                        queuePileToExpand.append(empty_pile)
-                        possibleMove.append(empty_pile)
-
-                # North East
-                if (self.board.canMoveNorthEast(expanding_pile_row, expanding_pile_col, 2)) and (not(self.board.canMoveNorthEast(expanding_pile_row, expanding_pile_col))) : # Skipping a Pawn
-                    empty_pile = self.board.takeNorthEastPile(expanding_pile_row, expanding_pile_col, 2)
-                    
-                    already_exist = False
-                    for pile in possibleMove :
-                        if (pile.getRow() == empty_pile.getRow()) and (pile.getCol() == empty_pile.getCol()) :
-                            already_exist = True
-
-                    if (not(already_exist)) :
-                        queuePileToExpand.append(empty_pile)
-                        possibleMove.append(empty_pile)
-
-                # End of Iteration, check whether the final row and col in the possibleMove
-
-            isValidMove = False
-            for pile in possibleMove :
-                if (pile.getRow() == row_fin) and (pile.getCol() == col_fin) :
-                    isValidMove = True
-
-            return isValidMove
-    
-
-  
-    # def minimaxi(self, depth, color, max=True, state):
-    #     #possible moves from state
-    #     moves = nextmove(color, state) #array of array, isinya Pawn, col, row
-    #     values = []
-    #     #basis
-    #     if (checkwin("R", state) or checkwin("G", state)):
-    #         return moves[0] #isinya Pawn, col, row
+        return moves 
         
-    #     #rekurens
-    #     #bingung brok
-    #     #idenya ada array moves, dicobain satu2
-
-    #     for i in range(len(moves)):
-    #         values[i] = objFunc(color, moves[i])
-
-    #     if max:
-    #         bestval = max(values)
-    #         bestmove = moves[bestval]
-    #     elif not max:
-    #         bestval = min(values)
-    #         bestmove = moves[bestval]
-
-    #     #mesti return bestmove
-        
-    def bot(self, color, board):
+    def updateBoard(self, board):
+        self.board = board

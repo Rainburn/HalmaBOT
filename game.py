@@ -1,6 +1,7 @@
 from board import Board
 from player import Player
 from pawn import Pile, Pawn, Empty
+from bot import Bot
 import time, datetime
 
 class Game :
@@ -29,13 +30,20 @@ class Game :
 
             # After this, append BOT to self.players with the remaining unchosen color
 
+            if (player_color == "R") :
+                another_color = "G"
+            else :
+                another_color = "R"
+            
+            self.players.append(Bot(another_color, self.board))
+
+
         # For Testing Only
 
         elif (bot_count == 0) :
             print("RED Takes First Turn, Green Takes Second")
             player_color = "U"
             another_color = "U"
-
 
             while True :
                 player_color = str(input("Choose Color : R (Red) / G (Green) : "))
@@ -44,18 +52,23 @@ class Game :
                     break
                 print("Please choose the color correctly")
 
-                another_color = "U"
-                if (player_color == "R") :
-                    another_color = "G"
-                else : 
-                    another_color = "R"
+            another_color = "U"
+            if (player_color == "R") :
+                another_color = "G"
+                    
+            else : 
+                another_color = "R"
+
 
             self.players.append(Player(player_color))
             self.players.append(Player(another_color))
 
         else : # TO DO ---> Bot Count = 2 (ALL PLAYERS ARE BOT)
             # Append BOTS to self.players
-            print("Append BOTS HERE")
+
+            self.players.append(Bot("R", self.board))
+            self.players.append(Bot("G", self.board))
+
 
     def play(self) :
 
@@ -146,6 +159,18 @@ class Game :
             else : # TO DO ---> BOT's TURN
                 # TO DO --> Turn On Timer Here
 
+                in_play.updateBoard(self.board)
+                color = in_play.getColor()
+                value, move = in_play.minimax(0, color)
+                print(move)
+
+                initial_row = move[0].getRow()
+                initial_col = move[0].getCol()
+
+                target_row = move[1].getRow()
+                target_col = move[1].getCol()
+
+                self.board.swapPosition(initial_row, initial_col, target_row, target_col)
 
                 # do turn as bot's desires
                 self.nextTurn()
