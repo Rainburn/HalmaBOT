@@ -13,13 +13,13 @@ class Bot(Player):
     def __str__(self):
         return "BOT"
 
-    def checkwin(self, color, state=self.board):
+    def checkwin(self, color):
         win = True
         if (color == "R"):
             for i in range(4) :
                 for j in range(4 - i) :
-                    row = state.getSize() - (i + 1)
-                    col = state.getSize() - (j + 1)
+                    row = self.board.getSize() - (i + 1)
+                    col = self.board.getSize() - (j + 1)
 
                     pile = self.board.getPile(row, col)
                     if (str(pile) == "x") or (str(pile) == "G") :
@@ -27,16 +27,16 @@ class Bot(Player):
         elif (color == "G"):
             for i in range(4) :
                 for j in range(4 - i) :
-                    pile = state.getPile(i, j)
+                    pile = self.board.getPile(i, j)
                     if (str(pile) == "x") or (str(pile) == "R") :
                         win = False
         return win
 
 
-    def objFunc(self, color, board=self.board):
+    def objFunc(self, color):
         valueR = 0
         valueG = 0
-        n = board.getSize()
+        n = self.board.getSize()
         now = Pawn.Empty()
         opponent = ""
 
@@ -45,8 +45,8 @@ class Bot(Player):
         elif (color == "G"):
             opponent = "R"
 
-        win = self.checkwin(color, board)
-        lose = self.checkwin(opponent, board)
+        win = self.checkwin(color, self.board)
+        lose = self.checkwin(opponent, self.board)
 
         if win:
             value = 99999
@@ -55,7 +55,7 @@ class Bot(Player):
         else:
             for i in range(n):
                 for j in range (n):
-                    now = board.getPile(i, j)
+                    now = self.board.getPile(i, j)
                     if Pawn.str(now) == "R":
                         valueR += i + j
                     elif Pawn.str(now) == "G":
@@ -70,7 +70,7 @@ class Bot(Player):
 
         return value
 
-    def minimax(self, depth, color, max = True, state = self.board, a = float("-inf"), b = float("inf")):
+    def minimax(self, depth, color, max = True, a = float("-inf"), b = float("inf")):
         #variabel dan move
         moves = self.nextMove(color)
         best_move = None
@@ -80,8 +80,8 @@ class Bot(Player):
             best_val = float("inf")
 
         #basis
-        if (depth == 3) or (self.checkwin("R", state)) or (self.checkwin("G", state)):
-            return self.objFunc(color, state)
+        if (depth == 3) or (self.checkwin("R", self.board)) or (self.checkwin("G", self.board)):
+            return self.objFunc(color, self.board), best_move
 
         #rekurens
         for i in range(len(moves)):
@@ -90,23 +90,26 @@ class Bot(Player):
             initial_col = moves[i][0].getCol()   
             final_row = moves[i][1].getRow()
             final_col = moves[i][1].getCol()
-            state.swapPosition(initial_row, initial_col, final_row, final_col)
+            self.board.swapPosition(initial_row, initial_col, final_row, final_col)
 
             #panggil rekursif
             val, selected_move = self.minimax(depth+1, color, not max)
                 
             #undo movenya
-            state.swapPosition(final_row, final_col, initial_row, initial_col)
+            self.board.swapPosition(final_row, final_col, initial_row, initial_col)
 
-        if max and (val > best_val):
-            best_val = val
-            best_move = selected_move
-            a = max(a, val)
-        if not max and (val < best_val):
-            best_val = val
-            best_move = selected_move
-            b = min(b, val)
-    
+            if max and (val > best_val):
+                best_val = val
+                best_move = selected_move
+                a = max(a, val)
+            if not max and (val < best_val):
+                best_val = val
+                best_move = selected_move
+                b = min(b, val)
+
+            if (b <= a):
+                return 
+
         return best_val, best_move
 
         # if depth == 0 or checkwin == True:
@@ -120,12 +123,12 @@ class Bot(Player):
         #     moves = self.get_next_moves((Tile.P_RED
         #             if isMaxingColor == Tile.P_GREEN else Tile.P_GREEN))
 
-    def nextMove(self, color, board=self.board):
+    def nextMove(self, color):
         moves = []
-        for row in range(board.getSize()):
-            for col in range(board.getSize()):
+        for row in range(self.board.getSize()):
+            for col in range(self.board.getSize()):
 
-                currPile = board.getPile(row, col)
+                currPile = self.board.getPile(row, col)
 
                 if currPile != color:
                     continue
