@@ -252,7 +252,7 @@ class Game :
             return False
 
         if (not(self.checkValidMoveByField(selected_pawn, row_fin, col_fin))) :
-            print("Invalid By Valid")
+            print("Invalid By Field")
             return False
 
         if (not(self.checkValidMoveByEmpty(row_fin, col_fin))) :
@@ -401,7 +401,9 @@ class Game :
         
         row_init = selected_pawn.getRow()
         col_init = selected_pawn.getCol()
+        target_field = self.fieldCheck(row, col)
         self.board.swapPosition(row_init, col_init, row, col)
+        self.board.getPile(row, col).setCurrField(target_field)
 
 
     def checkWinStatus(self):

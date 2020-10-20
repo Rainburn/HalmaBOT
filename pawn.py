@@ -43,6 +43,9 @@ class Pawn(Pile) :
     def getInitField(self) :
         return self.init_field
 
+    def setCurrField(self, field) :
+        self.curr_field = field
+
 class Empty(Pile) :
     def __init__(self, row_init, col_init):
         super().__init__(row_init, col_init)
