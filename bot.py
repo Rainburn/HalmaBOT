@@ -70,17 +70,22 @@ class Bot(Player):
         return value
 
     def minimax(self, depth, color, max = True, a = float("-inf"), b = float("inf")):
+        #basis
+        if (depth == 3) or (self.checkwin("R")) or (self.checkwin("G")):
+            return self.objFunc(color), None
+        
         #variabel dan move
+        
         moves = self.nextMove(color)
+        print(moves)
+
         best_move = None
         if max:
             best_val = float("-inf")
         else:
             best_val = float("inf")
 
-        #basis
-        if (depth == 3) or (self.checkwin("R")) or (self.checkwin("G")):
-            return self.objFunc(color), best_move
+        
 
         #rekurens
         for i in range(len(moves)):
@@ -99,11 +104,11 @@ class Bot(Player):
 
             if max and (val > best_val):
                 best_val = val
-                best_move = selected_move
+                best_move = moves[i]
                 a = max(a, val)
             if not max and (val < best_val):
                 best_val = val
-                best_move = selected_move
+                best_move = moves[i]
                 b = min(b, val)
 
             #if (b <= a):
@@ -129,12 +134,12 @@ class Bot(Player):
 
                 currPile = self.board.getPile(row, col)
 
-                if currPile != color:
+                if str(currPile) != color:
                     continue
                 
                 move = []
-                move[0] = currPile # From Pile
-                move[1] = self.availablePos(currPile, color) # Destination Pile
+                move.append(currPile) # From Pile
+                move.append(self.availablePos(currPile, color)) # Destination Pile
 
                 moves.append(move)
         
@@ -149,12 +154,12 @@ class Bot(Player):
             moves = []
         
         validPile = ["FF", "RF", "GF"]
-        if selected_pawn.getCol != color:
-            validPile.remove(selected_pawn.getCurrField)
-        if selected_pawn.getCurrField != "FF" and selected_pawn.getCol != color:
+        if str(selected_pawn) != color:
+            validPile.remove(selected_pawn.getCurrField())
+        if selected_pawn.getCurrField() != "FF" and str(selected_pawn) != color:
             validPile.remove("FF")  # Moving out of the enemy's goal
 
-        
+    
 
         for rowDelta in range(-1,2):
             for colDelta in range(-1,2):
@@ -164,15 +169,19 @@ class Bot(Player):
 
                 if ((newRow == row_init and newCol == col_init) or
                     newRow < 0 or newCol < 0 or
-                    newRow >= self.b_size or newCol >= self.b_size):
+                    newRow >= self.board.getSize() or newCol >= self.board.getSize()):
                     continue
 
                 # Handle moves out of/in to goals
-                newPile = self.board[newRow][newCol]
-                if newPile.tile not in validPile:
+                newPile = self.board.getPile(newRow, newCol)
+
+                if str(newPile) == "x" :
                     continue
 
-                if newPile.getCurrField == "FF":
+                if newPile.getCurrField() not in validPile:
+                    continue
+
+                if newPile.getCurrField() == "FF":
                     if adj:  # Don't consider adjacent on subsequent calls
                         moves.append(newPile)
                     continue
@@ -184,15 +193,19 @@ class Bot(Player):
 
                 # Skip checking degenerate values
                 if (newRow < 0 or newCol < 0 or
-                    newRow >= self.b_size or newCol >= self.b_size):
+                    newRow >= self.board.getSize() or newCol >= self.board.getSize()):
                     continue
 
                 # Handle returning moves and moves out of/in to goals
-                newPile = self.board[newRow][newCol]
-                if newPile in moves or (newPile.getCurrField not in validPile):
+                newPile = self.board.getPile(newRow, newCol)
+
+                if str(newPile) == "x" :
                     continue
 
-                if newPile.getCurrField == "FF":
+                if newPile in moves or (newPile.getCurrField() not in validPile):
+                    continue
+
+                if newPile.getCurrField() == "FF":
                     moves.insert(0, newPile)  # Prioritize jumps
                     self.availablePos(newPile, color, moves, False)
 

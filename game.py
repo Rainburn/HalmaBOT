@@ -32,7 +32,7 @@ class Game :
                 another_color = "R"
 
             self.players.append(Player(player_color))
-            self.players.append(Bot(another_color))
+            self.players.append(Bot(another_color, self.board))
             # After this, append BOT to self.players with the remaining unchosen color
 
             if (player_color == "R") :
@@ -167,6 +167,7 @@ class Game :
                 in_play.updateBoard(self.board)
                 color = in_play.getColor()
                 value, move = in_play.minimax(0, color)
+                print(value)
                 print(move)
 
                 initial_row = move[0].getRow()
