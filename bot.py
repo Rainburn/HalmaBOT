@@ -44,8 +44,8 @@ class Bot(Player):
         elif (color == "G"):
             opponent = "R"
 
-        win = self.checkwin(color, self.board)
-        lose = self.checkwin(opponent, self.board)
+        win = self.checkwin(color)
+        lose = self.checkwin(opponent)
 
         if win:
             value = 99999
@@ -79,8 +79,8 @@ class Bot(Player):
             best_val = float("inf")
 
         #basis
-        if (depth == 3) or (self.checkwin("R", self.board)) or (self.checkwin("G", self.board)):
-            return self.objFunc(color, self.board), best_move
+        if (depth == 3) or (self.checkwin("R")) or (self.checkwin("G")):
+            return self.objFunc(color), best_move
 
         #rekurens
         for i in range(len(moves)):

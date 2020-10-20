@@ -24,9 +24,14 @@ class Game :
                 if ((player_color == "R") or (player_color == "G")) :
                     break
                 print("Please choose the color correctly")
-            
-            self.players.append(Player(player_color))
 
+            if (player_color == "R") :
+                another_color = "G"
+            else : 
+                another_color = "R"
+
+            self.players.append(Player(player_color))
+            self.players.append(Bot(another_color))
             # After this, append BOT to self.players with the remaining unchosen color
 
         # For Testing Only
@@ -146,7 +151,6 @@ class Game :
 
             else : # TO DO ---> BOT's TURN
                 # TO DO --> Turn On Timer Here
-
 
                 # do turn as bot's desires
                 self.nextTurn()
