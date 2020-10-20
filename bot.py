@@ -6,7 +6,7 @@ class Bot(Player):
 
 
     def __init__(self, color, board):
-        super.__init__(color)
+        super().__init__(color)
         self.board = board
 
     def __str__(self):
@@ -79,7 +79,7 @@ class Bot(Player):
             best_val = float("inf")
 
         #basis
-        if (depth == 3) or (self.checkwin("R", self.board)) or (self.checkwin("G", self.board)):
+        if (depth == 3) or (self.checkwin("R")) or (self.checkwin("G")):
             return self.objFunc(color, self.board), best_move
 
         #rekurens
