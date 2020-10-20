@@ -2,6 +2,7 @@ from board import Board
 from player import Player
 from pawn import Pile, Pawn, Empty
 from bot import Bot
+from bot2 import bot
 import time, datetime
 
 class Game :
@@ -25,7 +26,7 @@ class Game :
                 if ((player_color == "R") or (player_color == "G")) :
                     break
                 print("Please choose the color correctly")
-            
+
             self.players.append(Player(player_color))
 
             # After this, append BOT to self.players with the remaining unchosen color
@@ -34,8 +35,10 @@ class Game :
                 another_color = "G"
             else :
                 another_color = "R"
-            
-            self.players.append(Bot(another_color, self.board))
+
+            # self.players.append(Bot(another_color, self.board))
+            self.players.append(bot(another_color))
+
 
 
         # For Testing Only
@@ -55,8 +58,8 @@ class Game :
             another_color = "U"
             if (player_color == "R") :
                 another_color = "G"
-                    
-            else : 
+
+            else :
                 another_color = "R"
 
 
@@ -73,7 +76,7 @@ class Game :
     def play(self) :
 
         while not (self.game_finished) :
-            
+
             turn = self.getTurn()
             in_play = self.getPlayerToTurn()
             self.board.printBoard()
@@ -83,7 +86,7 @@ class Game :
 
             # if player is HUMAN
             if (str(in_play) == "HUMAN") :
-                
+
                 # Turn on Timer
                 timer_stop = datetime.datetime.utcnow() + datetime.timedelta(seconds=self.time_limit)
                 exit_by_timeout = False
@@ -97,18 +100,18 @@ class Game :
                     if (datetime.datetime.utcnow() > timer_stop) : # Timeout break
                         exit_by_timeout = True
                         break
-                    
+
                     if (self.checkValidPickPawn(select_row, select_col)) :
                         pawn_row = select_row
                         pawn_col = select_col
                         print("Pawn Selected")
                         print()
                         break
-                    
+
                     else :
                         print("Select your pawn correctly")
                         print()
-                
+
                 if (exit_by_timeout) : # Timeout
                     print()
                     print("Timeout")
@@ -133,7 +136,7 @@ class Game :
                         target_valid_row = target_row
                         target_valid_col = target_col
                         break
-                        
+
                     else :
                         print()
 
@@ -159,22 +162,34 @@ class Game :
             else : # TO DO ---> BOT's TURN
                 # TO DO --> Turn On Timer Here
 
-                in_play.updateBoard(self.board)
                 color = in_play.getColor()
-                value, move = in_play.minimax(0, color)
-                print(move)
-
-                initial_row = move[0].getRow()
-                initial_col = move[0].getCol()
-
-                target_row = move[1].getRow()
-                target_col = move[1].getCol()
-
-                self.board.swapPosition(initial_row, initial_col, target_row, target_col)
+                # in_play.updateBoard(self.board)
+                # value, move = in_play.minimax(0, color)
+                # print(move)
+                #
+                # initial_row = move[0].getRow()
+                # initial_col = move[0].getCol()
+                #
+                # target_row = move[1].getRow()
+                # target_col = move[1].getCol()
+                #
+                # self.board.swapPosition(initial_row, initial_col, target_row, target_col)
 
                 # do turn as bot's desires
+                print(color)
+                val, move = in_play.minimax(self.board,0,color)
+                # print(move)
+                self.board = move
+                # self.board.printBoard()
+                win_status = self.checkWinStatus()
+                if (win_status) :
+                    print(win_status)
+                    print()
+                    self.game_finished = True
+                    break
+
                 self.nextTurn()
-                
+
 
 
 
@@ -189,7 +204,7 @@ class Game :
         self.turn = self.turn + 1
 
     def getTurn(self):
-        return (self.turn % 2)   
+        return (self.turn % 2)
 
     def checkValidPickPawn(self, row, col) :
         pawn_selected = self.board.getPile(row, col)
@@ -197,7 +212,7 @@ class Game :
 
         if (str(pawn_selected) == "R") and (current_turn == 1) :
             return True
-        
+
         elif (str(pawn_selected) == "G") and (current_turn == 0) :
             return True
 
@@ -210,10 +225,10 @@ class Game :
 
         if (row + col <= 3) :
             return "RF"
-        
+
         elif (2 * self.board.getSize() - (row + col) <= 5) :
             return "GF"
-        
+
         else :
             return "FF"
 
@@ -224,13 +239,13 @@ class Game :
 
         if (curr_field == target_field) : # Stay in the same Field
             return True
-        
+
         else : # Move to another field
 
             if (initial_field == "RF") : # Red Pawn
                 if (curr_field == "FF") and (target_field == "RF") : # From Free Field, back to Home
                     return False
-                
+
                 elif (curr_field == "GF") and (target_field != "GF") : # Getting out from Target Field
                     return False
 
@@ -240,7 +255,7 @@ class Game :
             else : # Green Pawn
                 if (curr_field == "FF") and (target_field == "GF") : # From Free Field, back to Home
                     return False
-                
+
                 elif (curr_field == "RF") and (target_field != "RF") : # Getting out from Target Field
                     return False
 
@@ -252,7 +267,7 @@ class Game :
 
         if (row >= self.board.getSize()) or (row < 0) :
             return False
-        
+
         if (col >= self.board.getSize()) or (col < 0) :
             return False
 
@@ -271,7 +286,7 @@ class Game :
 
         row_init = selected_pawn.getRow()
         col_init = selected_pawn.getCol()
-        
+
         if (not(self.checkValidMoveByInBox(row_fin, col_fin))) :
             print("Invalid By InBox")
             return False
@@ -284,7 +299,7 @@ class Game :
             print("Invalid By Not Empty")
             return False
 
-        
+
         # 1st Type Move, to adjacent tile
 
         if (abs(row_init - row_fin) <= 1) and (abs(col_init - col_fin) <= 1) :
@@ -292,7 +307,7 @@ class Game :
 
         # Diagonal Moves
 
-        else : 
+        else :
             queuePileToExpand = []
             queuePileToExpand.append(selected_pawn)
             possibleMove = []
@@ -308,7 +323,7 @@ class Game :
                 # East
                 if (self.board.canMoveEast(expanding_pile_row, expanding_pile_col, 2)) and (not(self.board.canMoveEast(expanding_pile_row, expanding_pile_col))) : # Skipping a Pawn
                     empty_pile = self.board.takeEastPile(expanding_pile_row, expanding_pile_col, 2)
-                    
+
                     already_exist = False
                     for pile in possibleMove :
                         if (pile.getRow() == empty_pile.getRow()) and (pile.getCol() == empty_pile.getCol()) :
@@ -334,7 +349,7 @@ class Game :
                 # South
                 if (self.board.canMoveSouth(expanding_pile_row, expanding_pile_col, 2)) and (not(self.board.canMoveSouth(expanding_pile_row, expanding_pile_col))) : # Skipping a Pawn
                     empty_pile = self.board.takeSouthPile(expanding_pile_row, expanding_pile_col, 2)
-                    
+
                     already_exist = False
                     for pile in possibleMove :
                         if (pile.getRow() == empty_pile.getRow()) and (pile.getCol() == empty_pile.getCol()) :
@@ -347,7 +362,7 @@ class Game :
                 # South West
                 if (self.board.canMoveSouthWest(expanding_pile_row, expanding_pile_col, 2)) and (not(self.board.canMoveSouthWest(expanding_pile_row, expanding_pile_col))) : # Skipping a Pawn
                     empty_pile = self.board.takeSouthWestPile(expanding_pile_row, expanding_pile_col, 2)
-                    
+
                     already_exist = False
                     for pile in possibleMove :
                         if (pile.getRow() == empty_pile.getRow()) and (pile.getCol() == empty_pile.getCol()) :
@@ -360,7 +375,7 @@ class Game :
                 # West
                 if (self.board.canMoveWest(expanding_pile_row, expanding_pile_col, 2)) and (not(self.board.canMoveWest(expanding_pile_row, expanding_pile_col))) : # Skipping a Pawn
                     empty_pile = self.board.takeWestPile(expanding_pile_row, expanding_pile_col, 2)
-                    
+
                     already_exist = False
                     for pile in possibleMove :
                         if (pile.getRow() == empty_pile.getRow()) and (pile.getCol() == empty_pile.getCol()) :
@@ -373,7 +388,7 @@ class Game :
                 # North West
                 if (self.board.canMoveNorthWest(expanding_pile_row, expanding_pile_col, 2)) and (not(self.board.canMoveNorthWest(expanding_pile_row, expanding_pile_col))) : # Skipping a Pawn
                     empty_pile = self.board.takeNorthWestPile(expanding_pile_row, expanding_pile_col, 2)
-                    
+
                     already_exist = False
                     for pile in possibleMove :
                         if (pile.getRow() == empty_pile.getRow()) and (pile.getCol() == empty_pile.getCol()) :
@@ -386,7 +401,7 @@ class Game :
                 # North
                 if (self.board.canMoveNorth(expanding_pile_row, expanding_pile_col, 2)) and (not(self.board.canMoveNorth(expanding_pile_row, expanding_pile_col))) : # Skipping a Pawn
                     empty_pile = self.board.takeNorthPile(expanding_pile_row, expanding_pile_col, 2)
-                    
+
                     already_exist = False
                     for pile in possibleMove :
                         if (pile.getRow() == empty_pile.getRow()) and (pile.getCol() == empty_pile.getCol()) :
@@ -399,7 +414,7 @@ class Game :
                 # North East
                 if (self.board.canMoveNorthEast(expanding_pile_row, expanding_pile_col, 2)) and (not(self.board.canMoveNorthEast(expanding_pile_row, expanding_pile_col))) : # Skipping a Pawn
                     empty_pile = self.board.takeNorthEastPile(expanding_pile_row, expanding_pile_col, 2)
-                    
+
                     already_exist = False
                     for pile in possibleMove :
                         if (pile.getRow() == empty_pile.getRow()) and (pile.getCol() == empty_pile.getCol()) :
@@ -420,10 +435,10 @@ class Game :
                 print("Invalid Turn, Not Possible to Jump")
 
             return isValidMove
-                    
-         
+
+
     def movePawnTo(self, selected_pawn, row, col) : # Just swap right away, valid checking will be conducted before this function
-        
+
         row_init = selected_pawn.getRow()
         col_init = selected_pawn.getCol()
         target_field = self.fieldCheck(row, col)
@@ -456,10 +471,8 @@ class Game :
                 pile = self.board.getPile(row, col)
                 if (str(pile) == "x") or (str(pile) == "G") :
                     redWin = False
-            
+
         if (redWin) :
             return "Red WINS"
 
         return False
-
-
