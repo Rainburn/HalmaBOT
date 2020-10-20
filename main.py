@@ -19,9 +19,10 @@ print()
 
 while True :
     bot_count = int(input("Total Bot (1 / 2) : "))
-    if (bot_count == 1) or (bot_count == 2) :
+    if (bot_count == 1) or (bot_count == 2) or (bot_count == 0):
         break
 
 game = Game(size_input, time_limit_input, bot_count)
 
 # TO DO ---> CONTINUE THE GAME's EXECUTION CHRONOLOGICALLY
+game.play()

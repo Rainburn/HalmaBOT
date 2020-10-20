@@ -4,11 +4,10 @@ from pawn import Pile, Pawn, Empty
 import time, datetime
 
 class Game :
-    
-    self.players = []
 
     def __init__(self, board_size, time_limit, bot_count):
         self.board = Board(board_size)
+        self.players = []
         self.time_limit = time_limit
         self.bot_count = bot_count
         self.turn = 1
@@ -16,6 +15,8 @@ class Game :
 
         if (bot_count == 1) :
             print("RED Takes First Turn, Green Takes Second")
+            player_color = "U"
+            another_color = "U"
 
             while True :
                 player_color = str(input("Choose Color : R (Red) / G (Green) : "))
@@ -27,6 +28,30 @@ class Game :
             self.players.append(Player(player_color))
 
             # After this, append BOT to self.players with the remaining unchosen color
+
+        # For Testing Only
+
+        elif (bot_count == 0) :
+            print("RED Takes First Turn, Green Takes Second")
+            player_color = "U"
+            another_color = "U"
+
+
+            while True :
+                player_color = str(input("Choose Color : R (Red) / G (Green) : "))
+
+                if ((player_color == "R") or (player_color == "G")) :
+                    break
+                print("Please choose the color correctly")
+
+                another_color = "U"
+                if (player_color == "R") :
+                    another_color = "G"
+                else : 
+                    another_color = "R"
+
+            self.players.append(Player(player_color))
+            self.players.append(Player(another_color))
 
         else : # TO DO ---> Bot Count = 2 (ALL PLAYERS ARE BOT)
             # Append BOTS to self.players
@@ -40,13 +65,15 @@ class Game :
             in_play = self.getPlayerToTurn()
             self.board.printBoard()
             print()
-            print(in_play.getColor(), "'s TURN")
+            print(in_play.getColor(), "'s TURN. Num Turn : ", self.turn)
             print()
 
             # if player is HUMAN
             if (str(in_play) == "HUMAN") :
+                
                 # Turn on Timer
-
+                timer_stop = datetime.datetime.utcnow() + datetime.timedelta(seconds=self.time_limit)
+                exit_by_timeout = False
 
                 pawn_row = -1
                 pawn_col = -1
@@ -54,15 +81,27 @@ class Game :
                     select_row = int(input("Pawn's Row : "))
                     select_col = int(input("Pawn's Col : "))
 
-                    if (self.checkValidPickPawn(pawn_row, pawn_col)) :
+                    if (datetime.datetime.utcnow() > timer_stop) : # Timeout break
+                        exit_by_timeout = True
+                        break
+                    
+                    if (self.checkValidPickPawn(select_row, select_col)) :
                         pawn_row = select_row
                         pawn_col = select_col
+                        print("Pawn Selected")
+                        print()
                         break
                     
                     else :
                         print("Select your pawn correctly")
                         print()
                 
+                if (exit_by_timeout) : # Timeout
+                    print()
+                    print("Timeout")
+                    print()
+                    break
+
                 pawn_selected = self.board.getPile(select_row, select_col)
 
                 # Move Pawn to Someplace
@@ -72,17 +111,29 @@ class Game :
                     target_row = int(input("Target's Row : "))
                     target_col = int(input("Target's Col : "))
 
+                    if (datetime.datetime.utcnow() > timer_stop) : # Timeout break
+                        exit_by_timeout = True
+                        break
+
                     # if move is valid, then break
                     if (self.checkValidMove(pawn_selected, target_row, target_col)) :
                         target_valid_row = target_row
                         target_valid_col = target_col
                         break
+                        
+                    else :
+                        print()
 
-                
+                if (exit_by_timeout) : # Timeout
+                    print()
+                    print("Timeout")
+                    print()
+                    break
+
                 # Move the Pawn
                 self.movePawnTo(pawn_selected, target_valid_row, target_valid_col)
 
-                win_status = self.checkValidMove()
+                win_status = self.checkWinStatus()
                 if (win_status) :
                     print(win_status)
                     print()
@@ -122,7 +173,7 @@ class Game :
         if (str(pawn_selected) == "R") and (current_turn == 1) :
             return True
         
-        elif (str(pawn_selected) == "G") and (current_turn == 2) :
+        elif (str(pawn_selected) == "G") and (current_turn == 0) :
             return True
 
         else :
@@ -180,6 +231,8 @@ class Game :
         if (col >= self.board.getSize()) or (col < 0) :
             return False
 
+        return True
+
     def checkValidMoveByEmpty(self, row, col) :
         pile = self.board.getPile(row, col)
 
@@ -189,15 +242,21 @@ class Game :
         else :
             return False
 
-    def checkValidMove(self, selected_pawn, row_init, col_init, row_fin, col_fin) :
+    def checkValidMove(self, selected_pawn, row_fin, col_fin) :
+
+        row_init = selected_pawn.getRow()
+        col_init = selected_pawn.getCol()
         
         if (not(self.checkValidMoveByInBox(row_fin, col_fin))) :
+            print("Invalid By InBox")
             return False
 
         if (not(self.checkValidMoveByField(selected_pawn, row_fin, col_fin))) :
+            print("Invalid By Valid")
             return False
 
         if (not(self.checkValidMoveByEmpty(row_fin, col_fin))) :
+            print("Invalid By Not Empty")
             return False
 
         
@@ -331,6 +390,9 @@ class Game :
             for pile in possibleMove :
                 if (pile.getRow() == row_fin) and (pile.getCol() == col_fin) :
                     isValidMove = True
+
+            if (not(isValidMove)) :
+                print("Invalid Turn, Not Possible to Jump")
 
             return isValidMove
                     
