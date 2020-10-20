@@ -36,7 +36,6 @@ class Game :
             player_color = "U"
             another_color = "U"
 
-
             while True :
                 player_color = str(input("Choose Color : R (Red) / G (Green) : "))
 
@@ -44,11 +43,13 @@ class Game :
                     break
                 print("Please choose the color correctly")
 
-                another_color = "U"
-                if (player_color == "R") :
-                    another_color = "G"
-                else : 
-                    another_color = "R"
+            another_color = "U"
+            if (player_color == "R") :
+                another_color = "G"
+                    
+            else : 
+                another_color = "R"
+
 
             self.players.append(Player(player_color))
             self.players.append(Player(another_color))
