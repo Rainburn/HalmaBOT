@@ -93,7 +93,7 @@ class Bot(Player):
             self.board.swapPosition(initial_row, initial_col, final_row, final_col)
 
             #panggil rekursif
-            val, selected_move = self.minimax(depth+1, color, not max)
+            val, selected_move = self.minimax(depth+1, color, not max, a, b)
                 
             #undo movenya
             self.board.swapPosition(final_row, final_col, initial_row, initial_col)
@@ -108,7 +108,7 @@ class Bot(Player):
                 b = min(b, val)
 
             if (b <= a):
-                return 
+                return best_val, best_move
 
         return best_val, best_move
 
