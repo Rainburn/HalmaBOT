@@ -63,12 +63,28 @@ class Game :
                 pawn_selected = self.board.getPile(select_row, select_col)
 
                 # Move Pawn to Someplace
+                target_valid_row = -1
+                target_valid_col = -1
                 while True : # Check if Turn is Valid
                     target_row = int(input("Target's Row : "))
                     target_col = int(input("Target's Col : "))
 
                     # if move is valid, then break
+                    if (self.checkValidMove(pawn_selected, target_row, target_col)) :
+                        target_valid_row = target_row
+                        target_valid_col = target_col
+                        break
 
+                
+                # Move the Pawn
+                self.movePawnTo(pawn_selected, target_valid_row, target_valid_col)
+
+                win_status = self.checkValidMove()
+                if (win_status) :
+                    print(win_status)
+                    print()
+                    self.game_finished = True
+                    break
 
                 self.nextTurn()
 
@@ -313,6 +329,11 @@ class Game :
             return isValidMove
                     
          
+    def movePawnTo(self, selected_pawn, row, col) : # Just swap right away, valid checking will be conducted before this function
+        
+        row_init = selected_pawn.getRow()
+        col_init = selected_pawn.getCol()
+        self.board.swapPosition(row_init, col_init, row, col)
 
 
     def checkWinStatus(self):

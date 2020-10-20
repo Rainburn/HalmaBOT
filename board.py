@@ -18,7 +18,7 @@ class Board :
                     self.game_board[i].append(Empty(i, j))
 
     
-    def swapPosition(self, col_initial, row_initial, row_final, col_final):
+    def swapPosition(self, rpw_initial, col_initial, row_final, col_final):
         pileInitial = self.game_board[row_initial][col_initial]
         pileFinal = self.game_board[row_final][col_final]
 
