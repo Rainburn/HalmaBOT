@@ -66,7 +66,7 @@ class Bot:
 
         return value
 
-    def minimax(self, depth, color, max = True, board=self.board):
+    def minimax(self, depth, color, max = True, state=self.board):
         #variabel dan move
         moves = nextmove(color, state) #nextmove blom ada
         best_move = None
@@ -81,12 +81,18 @@ class Bot:
 
         #rekurens
         for move in moves:
-            #move: pindahin pion (gatau cara kerjanya gimana)
+            #move: pindahin pion (ga yakin cara kerjanya gimana)
+            initial_row = move.pawn.getRow()
+            initial_col = move.pawn.getCol()
+            final_row = move.row
+            final_col = move.col
+            state.swapPosition(initial_row, initial_col, final_row, final_col)
 
             #panggil rekursif
-                val, selected_move = self.minimax(depth+1, color, not max)
+            val, selected_move = self.minimax(depth+1, color, not max)
                 
-            #undo movenya (gatau cara kerjanya)
+            #undo movenya (ga yakin cara kerjanya)
+            state.swapPosition(final_row, final_col, initial_row, initial_col)
 
         if max and (val > best_val):
             best_val = val
