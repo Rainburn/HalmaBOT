@@ -6,7 +6,7 @@ from pawn import *
 class Bot(Player):
 
 
-    def __init__(self, color, board):
+    def __init__(self, color, board = game.board):
         super.__init__(color)
         self.board = board
 
@@ -70,7 +70,7 @@ class Bot(Player):
 
         return value
 
-    def minimax(self, depth, color, max = True, state=self.board):
+    def minimax(self, depth, color, max = True, state = self.board, a = float("-inf"), b = float("inf")):
         #variabel dan move
         moves = self.nextMove(color)
         best_move = None
@@ -101,10 +101,12 @@ class Bot(Player):
         if max and (val > best_val):
             best_val = val
             best_move = selected_move
+            a = max(a, val)
         if not max and (val < best_val):
             best_val = val
             best_move = selected_move
-
+            b = min(b, val)
+    
         return best_val, best_move
 
         # if depth == 0 or checkwin == True:
@@ -127,11 +129,14 @@ class Bot(Player):
 
                 if currPile != color:
                     continue
-
+                
+                move = []
                 move[0] = currPile # From Pile
                 move[1] = self.availablePos(currPile, color) # Destination Pile
 
                 moves.append(move)
+        
+        return moves
 
     def availablePos(self, selected_pawn, color = self.getColor, moves=None, adj=True) :
 
@@ -142,10 +147,10 @@ class Bot(Player):
             moves = []
         
         validPile = ["FF", "RF", "GF"]
-        if selected_pawn.getCurrField != :
+        if selected_pawn.getCol != color:
             validPile.remove(selected_pawn.getCurrField)
-        if tile.tile != Tile.T_NONE and tile.tile != player:
-            valid_tiles.remove(Tile.T_NONE)  # Moving out of the enemy's goal
+        if selected_pawn.getCurrField != "FF" and selected_pawn.getCol != color:
+            validPile.remove("FF")  # Moving out of the enemy's goal
 
         
 
@@ -165,7 +170,7 @@ class Bot(Player):
                 if newPile.tile not in validPile:
                     continue
 
-                if newPile.piece == Tile.P_NONE:
+                if newPile.getCurrField == "FF":
                     if adj:  # Don't consider adjacent on subsequent calls
                         moves.append(newPile)
                     continue
@@ -182,11 +187,14 @@ class Bot(Player):
 
                 # Handle returning moves and moves out of/in to goals
                 newPile = self.board[newRow][newCol]
-                if newPile in moves or (newPile.tile not in validPile):
+                if newPile in moves or (newPile.getCurrField not in validPile):
                     continue
 
-                if newPile.piece == Tile.P_NONE:
+                if newPile.getCurrField == "FF":
                     moves.insert(0, newPile)  # Prioritize jumps
-                    self.get_moves_at_tile(newPile, color, moves, False)
+                    self.availablePos(newPile, color, moves, False)
 
         return moves 
+        
+    def updateBoard(self, board = game.board):
+        self.board = board
