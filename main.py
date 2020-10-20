@@ -22,7 +22,12 @@ while True :
     if (bot_count == 1) or (bot_count == 2) or (bot_count == 0):
         break
 
-game = Game(size_input, time_limit_input, bot_count)
+while True :
+    bot_type = int(input("Tipe Bot (1 = minimax / 2 = minimax + local search) : "))
+    if (bot_type == 1) or (bot_type == 2):
+        break
+
+game = Game(size_input, time_limit_input, bot_count, bot_type)
 
 # TO DO ---> CONTINUE THE GAME's EXECUTION CHRONOLOGICALLY
 game.play()
