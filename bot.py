@@ -80,10 +80,10 @@ class Bot:
             return self.objFunc(color, state)
 
         #rekurens
-        for move in moves:
+        for i in range(len(moves)):
             #move: pindahin pion (ga yakin cara kerjanya gimana)
-            initial_row = move.pawn.getRow()
-            initial_col = move.pawn.getCol()
+            initial_row = moves[i][0]
+            initial_col = moves[i][1]   
             final_row = move.row
             final_col = move.col
             state.swapPosition(initial_row, initial_col, final_row, final_col)
@@ -126,6 +126,154 @@ class Bot:
 
                 move[0] = currPile #From Pile
                 move[1] = ge
+
+                moves.append(move)
+
+    def availablePos(self, selected_pawn, row_init, col_init, row_fin, col_fin) :
+        
+        if (not(self.checkValidMoveByInBox(row_fin, col_fin))) :
+            return False
+
+        if (not(self.checkValidMoveByField(selected_pawn, row_fin, col_fin))) :
+            return False
+
+        if (not(self.checkValidMoveByEmpty(row_fin, col_fin))) :
+            return False
+
+        
+        # 1st Type Move, to adjacent tile
+
+        if (abs(row_init - row_fin) <= 1) and (abs(col_init - col_fin) <= 1) :
+            return True
+
+        # Diagonal Moves
+
+        else : 
+            queuePileToExpand = []
+            queuePileToExpand.append(selected_pawn)
+            possibleMove = []
+            # Append all possible moves to possibleMove
+            while (queuePileToExpand) :
+                expanding_pile = queuePileToExpand.pop(0)
+                # Checking All Possibilities
+                expanding_pile_row = expanding_pile.getRow()
+                expanding_pile_col = expanding_pile.getCol()
+
+                # Iterate clockwise from East to North East
+
+                # East
+                if (self.board.canMoveEast(expanding_pile_row, expanding_pile_col, 2)) and (not(self.board.canMoveEast(expanding_pile_row, expanding_pile_col))) : # Skipping a Pawn
+                    empty_pile = self.board.takeEastPile(expanding_pile_row, expanding_pile_col, 2)
+                    
+                    already_exist = False
+                    for pile in possibleMove :
+                        if (pile.getRow() == empty_pile.getRow()) and (pile.getCol() == empty_pile.getCol()) :
+                            already_exist = True
+
+                    if (not(already_exist)) :
+                        queuePileToExpand.append(empty_pile)
+                        possibleMove.append(empty_pile)
+
+                # South East
+                if (self.board.canMoveSouthEast(expanding_pile_row, expanding_pile_col, 2)) and (not(self.board.canMoveSouthEast(expanding_pile_row, expanding_pile_col))) : # Skipping a Pawn
+                    empty_pile = self.board.takeSouthEastPile(expanding_pile_row, expanding_pile_col, 2)
+
+                    already_exist = False
+                    for pile in possibleMove :
+                        if (pile.getRow() == empty_pile.getRow()) and (pile.getCol() == empty_pile.getCol()) :
+                            already_exist = True
+
+                    if (not(already_exist)) :
+                        queuePileToExpand.append(empty_pile)
+                        possibleMove.append(empty_pile)
+
+                # South
+                if (self.board.canMoveSouth(expanding_pile_row, expanding_pile_col, 2)) and (not(self.board.canMoveSouth(expanding_pile_row, expanding_pile_col))) : # Skipping a Pawn
+                    empty_pile = self.board.takeSouthPile(expanding_pile_row, expanding_pile_col, 2)
+                    
+                    already_exist = False
+                    for pile in possibleMove :
+                        if (pile.getRow() == empty_pile.getRow()) and (pile.getCol() == empty_pile.getCol()) :
+                            already_exist = True
+
+                    if (not(already_exist)) :
+                        queuePileToExpand.append(empty_pile)
+                        possibleMove.append(empty_pile)
+
+                # South West
+                if (self.board.canMoveSouthWest(expanding_pile_row, expanding_pile_col, 2)) and (not(self.board.canMoveSouthWest(expanding_pile_row, expanding_pile_col))) : # Skipping a Pawn
+                    empty_pile = self.board.takeSouthWestPile(expanding_pile_row, expanding_pile_col, 2)
+                    
+                    already_exist = False
+                    for pile in possibleMove :
+                        if (pile.getRow() == empty_pile.getRow()) and (pile.getCol() == empty_pile.getCol()) :
+                            already_exist = True
+
+                    if (not(already_exist)) :
+                        queuePileToExpand.append(empty_pile)
+                        possibleMove.append(empty_pile)
+
+                # West
+                if (self.board.canMoveWest(expanding_pile_row, expanding_pile_col, 2)) and (not(self.board.canMoveWest(expanding_pile_row, expanding_pile_col))) : # Skipping a Pawn
+                    empty_pile = self.board.takeWestPile(expanding_pile_row, expanding_pile_col, 2)
+                    
+                    already_exist = False
+                    for pile in possibleMove :
+                        if (pile.getRow() == empty_pile.getRow()) and (pile.getCol() == empty_pile.getCol()) :
+                            already_exist = True
+
+                    if (not(already_exist)) :
+                        queuePileToExpand.append(empty_pile)
+                        possibleMove.append(empty_pile)
+
+                # North West
+                if (self.board.canMoveNorthWest(expanding_pile_row, expanding_pile_col, 2)) and (not(self.board.canMoveNorthWest(expanding_pile_row, expanding_pile_col))) : # Skipping a Pawn
+                    empty_pile = self.board.takeNorthWestPile(expanding_pile_row, expanding_pile_col, 2)
+                    
+                    already_exist = False
+                    for pile in possibleMove :
+                        if (pile.getRow() == empty_pile.getRow()) and (pile.getCol() == empty_pile.getCol()) :
+                            already_exist = True
+
+                    if (not(already_exist)) :
+                        queuePileToExpand.append(empty_pile)
+                        possibleMove.append(empty_pile)
+
+                # North
+                if (self.board.canMoveNorth(expanding_pile_row, expanding_pile_col, 2)) and (not(self.board.canMoveNorth(expanding_pile_row, expanding_pile_col))) : # Skipping a Pawn
+                    empty_pile = self.board.takeNorthPile(expanding_pile_row, expanding_pile_col, 2)
+                    
+                    already_exist = False
+                    for pile in possibleMove :
+                        if (pile.getRow() == empty_pile.getRow()) and (pile.getCol() == empty_pile.getCol()) :
+                            already_exist = True
+
+                    if (not(already_exist)) :
+                        queuePileToExpand.append(empty_pile)
+                        possibleMove.append(empty_pile)
+
+                # North East
+                if (self.board.canMoveNorthEast(expanding_pile_row, expanding_pile_col, 2)) and (not(self.board.canMoveNorthEast(expanding_pile_row, expanding_pile_col))) : # Skipping a Pawn
+                    empty_pile = self.board.takeNorthEastPile(expanding_pile_row, expanding_pile_col, 2)
+                    
+                    already_exist = False
+                    for pile in possibleMove :
+                        if (pile.getRow() == empty_pile.getRow()) and (pile.getCol() == empty_pile.getCol()) :
+                            already_exist = True
+
+                    if (not(already_exist)) :
+                        queuePileToExpand.append(empty_pile)
+                        possibleMove.append(empty_pile)
+
+                # End of Iteration, check whether the final row and col in the possibleMove
+
+            isValidMove = False
+            for pile in possibleMove :
+                if (pile.getRow() == row_fin) and (pile.getCol() == col_fin) :
+                    isValidMove = True
+
+            return isValidMove
+    
 
   
     # def minimaxi(self, depth, color, max=True, state):
