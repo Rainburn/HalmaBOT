@@ -248,10 +248,16 @@ class Board :
                     print("x", end="  ")
                 
                 elif (i == 0) :
-                    print(j-1, end="  ")
+                    if(j>10):
+                        print(j-1, end=" ")
+                    else:
+                        print(j-1, end="  ")
 
                 elif (j == 0) :
-                    print(i-1, end="  ")
+                    if(i <= 10):
+                        print(i-1, end="  ")
+                    else:
+                        print(i-1, end=" ")
 
                 else :
                     print(self.game_board[i-1][j-1], end="  ")
