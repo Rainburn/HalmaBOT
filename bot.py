@@ -68,7 +68,7 @@ class Bot:
 
     def minimax(self, depth, color, max = True, state=self.board):
         #variabel dan move
-        moves = nextmove(color, state) #nextmove blom ada
+        moves = self.nextMove(color)
         best_move = None
         if max:
             best_val = float("-inf")
@@ -81,17 +81,17 @@ class Bot:
 
         #rekurens
         for i in range(len(moves)):
-            #move: pindahin pion (ga yakin cara kerjanya gimana)
-            initial_row = moves[i][0]
-            initial_col = moves[i][1]   
-            final_row = move.row
-            final_col = move.col
+            #move: pindahin pion 
+            initial_row = moves[i][0].getRow()
+            initial_col = moves[i][0].getCol()   
+            final_row = moves[i][1].getRow()
+            final_col = moves[i][1].getCol()
             state.swapPosition(initial_row, initial_col, final_row, final_col)
 
             #panggil rekursif
             val, selected_move = self.minimax(depth+1, color, not max)
                 
-            #undo movenya (ga yakin cara kerjanya)
+            #undo movenya
             state.swapPosition(final_row, final_col, initial_row, initial_col)
 
         if max and (val > best_val):
@@ -125,19 +125,25 @@ class Bot:
                     continue
 
                 move[0] = currPile #From Pile
-                move[1] = ge
+                move[1] = self.availablePos(currPile, color) #Destination Pile
 
                 moves.append(move)
 
-    def availablePos(self, selected_pawn, row_init, col_init, row_fin, col_fin) :
+    def checkValidMove(self, selected_pawn, color, moves=None, row_fin, col_fin) :
+
+        row_init = selected_pawn.getRow()
+        col_init = selected_pawn.getCol()
         
         if (not(self.checkValidMoveByInBox(row_fin, col_fin))) :
+            print("Invalid By InBox")
             return False
 
         if (not(self.checkValidMoveByField(selected_pawn, row_fin, col_fin))) :
+            print("Invalid By Valid")
             return False
 
         if (not(self.checkValidMoveByEmpty(row_fin, col_fin))) :
+            print("Invalid By Not Empty")
             return False
 
         
@@ -272,8 +278,11 @@ class Bot:
                 if (pile.getRow() == row_fin) and (pile.getCol() == col_fin) :
                     isValidMove = True
 
+            if (not(isValidMove)) :
+                print("Invalid Turn, Not Possible to Jump")
+
             return isValidMove
-    
+
 
   
     # def minimaxi(self, depth, color, max=True, state):
