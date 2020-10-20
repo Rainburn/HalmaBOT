@@ -141,7 +141,7 @@ class Bot(Player):
         
         return moves
 
-    def availablePos(self, selected_pawn, color = self.getColor, moves=None, adj=True) :
+    def availablePos(self, selected_pawn, color, moves=None, adj=True) :
 
         row_init = selected_pawn.getRow()
         col_init = selected_pawn.getCol()
