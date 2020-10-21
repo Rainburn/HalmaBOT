@@ -4,7 +4,6 @@ from pawn import *
 
 class Bot(Player):
 
-
     def __init__(self, color, board):
         super().__init__(color)
         self.board = board
@@ -36,7 +35,7 @@ class Bot(Player):
         valueR = 0
         valueG = 0
         n = self.board.getSize()
-        now = Pawn.Empty()
+        now = None
         opponent = ""
 
         if (color == "R"):
@@ -55,9 +54,9 @@ class Bot(Player):
             for i in range(n):
                 for j in range (n):
                     now = self.board.getPile(i, j)
-                    if Pawn.str(now) == "R":
+                    if str(now) == "R":
                         valueR += i + j
-                    elif Pawn.str(now) == "G":
+                    elif str(now) == "G":
                         valueG += (2*n + 2 - (i + j))
                     else:
                         continue
@@ -71,22 +70,20 @@ class Bot(Player):
 
     def minimax(self, depth, color, max = True, a = float("-inf"), b = float("inf")):
         #basis
-        if (depth == 3) or (self.checkwin("R")) or (self.checkwin("G")):
+        if (depth == 0) or (self.checkwin("R")) or (self.checkwin("G")):
             return self.objFunc(color), None
         
         #variabel dan move
-        
-        moves = self.nextMove(color)
-        print(moves)
-
         best_move = None
+
+        moves = self.nextMove(color)
+        # print(moves)
+
         if max:
             best_val = float("-inf")
         else:
             best_val = float("inf")
-
-        
-
+                
         #rekurens
         for i in range(len(moves)):
             #move: pindahin pion 
@@ -97,7 +94,7 @@ class Bot(Player):
             self.board.swapPosition(initial_row, initial_col, final_row, final_col)
 
             #panggil rekursif
-            val, selected_move = self.minimax(depth+1, color, not max, a, b)
+            val, selected_move = self.minimax(depth-1, color, not max, a, b)
                 
             #undo movenya
             self.board.swapPosition(final_row, final_col, initial_row, initial_col)
@@ -111,21 +108,12 @@ class Bot(Player):
                 best_move = moves[i]
                 b = min(b, val)
 
-            #if (b <= a):
-            #    return best_val, best_move
+            # pruning
+            if (b <= a):
+               return best_val, best_move
 
         return best_val, best_move
 
-        # if depth == 0 or checkwin == True:
-        #     return self.objFunc
-
-        # if maxing:
-        #     best_val = float("-inf")
-        #     moves = self.get_next_moves(isMaxingColor)
-        # else:
-        #     best_val = float("inf")
-        #     moves = self.get_next_moves((Tile.P_RED
-        #             if isMaxingColor == Tile.P_GREEN else Tile.P_GREEN))
 
     def nextMove(self, color):
         moves = []
@@ -133,20 +121,25 @@ class Bot(Player):
             for col in range(self.board.getSize()):
 
                 currPile = self.board.getPile(row, col)
-
+                # print(str(currPile))
                 if str(currPile) != color:
                     continue
                 
-                move = []
-                move.append(currPile) # From Pile
-                move.append(self.availablePos(currPile, color)) # Destination Pile
-
-                moves.append(move)
+                # move = []
+                # move.append(currPile) # From Pile
+                # move.append(self.availablePos(currPile, color)) # Destination Pile
+                # moves.append(move)
+                temp = self.availablePos(currPile, color)
+                for x in temp:
+                    move = []
+                    move.append(currPile)
+                    move.append(x)
+                    moves.append(move)
         
         return moves
 
     def availablePos(self, selected_pawn, color, moves=None, adj=True) :
-
+                                                
         row_init = selected_pawn.getRow()
         col_init = selected_pawn.getCol()
 
@@ -156,8 +149,10 @@ class Bot(Player):
         validPile = ["FF", "RF", "GF"]
         if str(selected_pawn) != color:
             validPile.remove(selected_pawn.getCurrField())
+            # print("TESS")
         if selected_pawn.getCurrField() != "FF" and str(selected_pawn) != color:
             validPile.remove("FF")  # Moving out of the enemy's goal
+        # print("INI VALID PILE ", validPile)
 
     
 
@@ -172,7 +167,7 @@ class Bot(Player):
                     newRow >= self.board.getSize() or newCol >= self.board.getSize()):
                     continue
 
-                # Handle moves out of/in to goals
+                # Kasus keluar atau masuk dari daerah goal
                 newPile = self.board.getPile(newRow, newCol)
 
                 if str(newPile) == "x" :
@@ -182,16 +177,17 @@ class Bot(Player):
                     continue
 
                 if newPile.getCurrField() == "FF":
-                    if adj:  # Don't consider adjacent on subsequent calls
+                    if adj: 
                         moves.append(newPile)
                     continue
 
-                # Check jump tiles
+
+                # Check jump pile
 
                 newRow = newRow + rowDelta
                 newCol = newCol + colDelta
 
-                # Skip checking degenerate values
+                # Skip invalid values
                 if (newRow < 0 or newCol < 0 or
                     newRow >= self.board.getSize() or newCol >= self.board.getSize()):
                     continue
@@ -206,7 +202,7 @@ class Bot(Player):
                     continue
 
                 if newPile.getCurrField() == "FF":
-                    moves.insert(0, newPile)  # Prioritize jumps
+                    moves.insert(0, newPile)  
                     self.availablePos(newPile, color, moves, False)
 
         return moves 
