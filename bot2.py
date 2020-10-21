@@ -34,9 +34,6 @@ class bot:
     def getColor(self) :
         return self.player_color
 
-    def __str__(self) :
-        return "BOT"
-
 
     def checkwin(self, color,board):
         win = True
